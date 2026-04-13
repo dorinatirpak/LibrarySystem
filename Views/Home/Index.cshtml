@@ -1,8 +1,98 @@
-﻿@{
-    ViewData["Title"] = "Home Page";
-}
+@model DashboardViewModel
+@{ ViewData["Title"] = "Főoldal"; }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+<div class="page-header">
+    <h1>Irányítópult</h1>
+    <p class="page-subtitle">Üdvözöljük a könyvtári adminisztrációs rendszerben</p>
+</div>
+
+<div class="stats-grid">
+    <div class="stat-card">
+        <div class="stat-icon">📚</div>
+        <div class="stat-value">@Model.TotalBooks</div>
+        <div class="stat-label">Könyvek</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon">👥</div>
+        <div class="stat-value">@Model.TotalMembers</div>
+        <div class="stat-label">Tagok</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon">📖</div>
+        <div class="stat-value">@Model.ActiveLoans</div>
+        <div class="stat-label">Aktív kölcsönzés</div>
+    </div>
+    <div class="stat-card @(Model.OverdueLoans > 0 ? "stat-card--warning" : "")">
+        <div class="stat-icon">⏰</div>
+        <div class="stat-value">@Model.OverdueLoans</div>
+        <div class="stat-label">Késésben</div>
+    </div>
+</div>
+
+<div class="section-card">
+    <div class="section-header">
+        <h2>Legutóbbi kölcsönzések</h2>
+        <a asp-controller="Loans" asp-action="All" class="btn btn-outline">Összes megtekintése</a>
+    </div>
+    @if (!Model.RecentLoans.Any())
+    {
+        <p class="empty-state">Még nincsenek kölcsönzések.</p>
+    }
+    else
+    {
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>Könyv</th>
+                    <th>Tag</th>
+                    <th>Kölcsönzés dátuma</th>
+                    <th>Visszahozás határideje</th>
+                    <th>Állapot</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var lv in Model.RecentLoans)
+                {
+                    <tr>
+                        <td>@lv.Book?.Title</td>
+                        <td>@lv.Member?.Name</td>
+                        <td>@lv.Loan.LoanDate.ToString("yyyy.MM.dd")</td>
+                        <td>@lv.Loan.DueDate.ToString("yyyy.MM.dd")</td>
+                        <td>
+                            @if (lv.Loan.IsReturned)
+                            {
+                                <span class="badge badge-success">Visszahozva</span>
+                            }
+                            else if (lv.Loan.IsOverdue)
+                            {
+                                <span class="badge badge-danger">Késésben (@lv.Loan.OverdueDays nap)</span>
+                            }
+                            else
+                            {
+                                <span class="badge badge-info">Kölcsönözve</span>
+                            }
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
+</div>
+
+<div class="quick-actions">
+    <h2>Gyors műveletek (Prototípus)</h2>
+    <div class="quick-actions-grid">
+        <a asp-controller="Books" asp-action="Index" class="quick-action-card">
+            <span>🔍</span> Könyvek keresése és listázása
+        </a>
+        <a asp-controller="Members" asp-action="Index" class="quick-action-card">
+            <span>👥</span> Tagok megtekintése
+        </a>
+        <div class="quick-action-card" style="opacity: 0.5; cursor: default;" title="Tervezett funkció">
+            <span>➕</span> [Admin: Új könyv / Tag - Később]
+        </div>
+        <div class="quick-action-card" style="opacity: 0.5; cursor: default;" title="Tervezett funkció">
+            <span>📋</span> [Admin: Kölcsönzés rögzítése - Később]
+        </div>
+    </div>
 </div>
