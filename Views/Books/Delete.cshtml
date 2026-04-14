@@ -1,0 +1,37 @@
+@model Book
+@{ ViewData["Title"] = "Könyv törlése"; }
+
+<div class="page-header">
+    <h1>Könyv törlése</h1>
+    <a asp-action="Index" class="btn btn-outline">← Vissza</a>
+</div>
+
+<div class="section-card form-card">
+    <div class="alert alert-warning">
+        ⚠ Figyelem! Ez a művelet nem vonható vissza. A könyv adatai a kölcsönzési előzmények részeként megmaradnak.
+    </div>
+
+    <div class="detail-grid">
+        <div class="detail-row"><span class="detail-label">Cím:</span><span>@Model.Title</span></div>
+        <div class="detail-row"><span class="detail-label">Szerző:</span><span>@Model.Author</span></div>
+        <div class="detail-row"><span class="detail-label">ISBN:</span><span class="mono">@Model.ISBN</span></div>
+        <div class="detail-row"><span class="detail-label">Példányszám:</span><span>@Model.CopyCount</span></div>
+    </div>
+
+    <form asp-action="Delete" method="post" style="margin-top:2rem">
+        <input type="hidden" name="id" value="@Model.Id" />
+        <p><strong>Mit szeretne törölni?</strong></p>
+        <div class="radio-group">
+            <label class="radio-label">
+                <input type="radio" name="deleteAll" value="false" checked /> Csak egy példányt
+            </label>
+            <label class="radio-label">
+                <input type="radio" name="deleteAll" value="true" /> Az összes példányt
+            </label>
+        </div>
+        <div class="form-actions" style="margin-top:1.5rem">
+            <button type="submit" class="btn btn-danger">Törlés megerősítése</button>
+            <a asp-action="Index" class="btn btn-outline">Mégse</a>
+        </div>
+    </form>
+</div>
