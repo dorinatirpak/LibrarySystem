@@ -1,0 +1,38 @@
+@model Book
+@{ ViewData["Title"] = Model.Title; }
+
+<div class="page-header">
+    <h1>@Model.Title</h1>
+    <div class="header-actions">
+        <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-outline">✏️ Szerkesztés</a>
+        <a asp-action="Index" class="btn btn-outline">← Vissza</a>
+    </div>
+</div>
+
+<div class="section-card">
+    <div class="detail-grid">
+        <div class="detail-row"><span class="detail-label">Azonosító:</span><span class="mono">#@Model.Id</span></div>
+        <div class="detail-row"><span class="detail-label">Szerző:</span><span>@Model.Author</span></div>
+        <div class="detail-row"><span class="detail-label">Cím:</span><span><strong>@Model.Title</strong></span></div>
+        <div class="detail-row"><span class="detail-label">Kiadó:</span><span>@Model.Publisher</span></div>
+        <div class="detail-row"><span class="detail-label">Kiadási év:</span><span>@Model.Year</span></div>
+        <div class="detail-row"><span class="detail-label">Kiadás:</span><span>@Model.Edition</span></div>
+        <div class="detail-row"><span class="detail-label">ISBN:</span><span class="mono">@Model.ISBN</span></div>
+        <div class="detail-row"><span class="detail-label">Összes példány:</span><span>@Model.CopyCount</span></div>
+        <div class="detail-row"><span class="detail-label">Szabad példány:</span>
+            <span class="badge @(ViewBag.Available > 0 ? "badge-success" : "badge-danger")">@ViewBag.Available</span>
+        </div>
+        <div class="detail-row"><span class="detail-label">Kölcsönözhető:</span>
+            <span>@(Model.IsLoanable ? "✓ Igen" : "✕ Nem")</span>
+        </div>
+    </div>
+
+    @if (Model.IsLoanable && (int)ViewBag.Available > 0)
+    {
+        <div style="margin-top:1.5rem">
+            <a asp-controller="Loans" asp-action="Create" asp-route-bookId="@Model.Id" class="btn btn-primary">
+                📋 Kölcsönzés rögzítése
+            </a>
+        </div>
+    }
+</div>
