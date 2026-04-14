@@ -1,0 +1,61 @@
+@model MemberSearchViewModel
+@{ ViewData["Title"] = "Tagok"; }
+
+<div class="page-header">
+    <h1>Könyvtári tagok</h1>
+    <span class="badge badge-info">PROTOTÍPUS: Listázás és Keresés</span>
+</div>
+
+<div class="section-card">
+    <form asp-action="Search" method="post" class="search-bar">
+        <select name="SearchField" class="form-control form-control--sm">
+            <option value="Name"    selected="@(Model.SearchField=="Name")">Név</option>
+            <option value="Address" selected="@(Model.SearchField=="Address")">Lakcím</option>
+        </select>
+        <input type="text" name="SearchText" value="@Model.SearchText"
+               placeholder="Keresett szöveg..." class="form-control" />
+        <button type="submit" class="btn btn-primary">Keresés</button>
+        <a asp-action="Index" class="btn btn-outline">Visszaállítás</a>
+    </form>
+</div>
+
+<div class="section-card">
+    @if (!Model.Results.Any())
+    {
+        <p class="empty-state">Nem található tag.</p>
+    }
+    else
+    {
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Név</th>
+                    <th>Típus</th>
+                    <th>Lakcím</th>
+                    <th>Elérhetőség</th>
+                    <th>Max. könyv</th>
+                    <th>Kölcsönzési idő</th>
+                    <th>Műveletek</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var m in Model.Results)
+                {
+                    <tr>
+                        <td class="mono">@m.Id</td>
+                        <td><strong>@m.Name</strong></td>
+                        <td><span class="badge badge-info">@m.MemberTypeDisplay</span></td>
+                        <td>@m.Address</td>
+                        <td>@m.Contact</td>
+                        <td>@(m.MaxBooks == int.MaxValue ? "Korlátlan" : m.MaxBooks.ToString())</td>
+                        <td>@m.LoanDays nap</td>
+                        <td class="actions">
+                            <span class="text-muted" style="font-size: 0.8rem;">[Funkciók tervezés alatt]</span>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
+</div>
