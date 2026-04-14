@@ -1,0 +1,52 @@
+@model LoginViewModel
+@{ Layout = null; }
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+    <meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Bejelentkezés – Könyvtári Rendszer</title>
+    <link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,600;1,400&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="~/css/site.css"/>
+</head>
+<body class="login-body">
+<div class="login-container">
+    <div class="login-card">
+        <div class="login-header">
+            <div class="login-icon">⬡</div>
+            <h1>Könyvtári Rendszer</h1>
+            <p>Kérem, jelentkezzen be a folytatáshoz</p>
+        </div>
+
+        @if (Model.ErrorMessage != null)
+        {
+            <div class="alert alert-error">@Model.ErrorMessage</div>
+        }
+
+        <form method="post">
+            <div class="form-group">
+                <label for="Username">Felhasználónév</label>
+                <input type="text" id="Username" name="Username" class="form-control"
+                       value="@Model.Username" autofocus autocomplete="username" required />
+            </div>
+            <div class="form-group">
+                <label for="Password">Jelszó</label>
+                <input type="password" id="Password" name="Password" class="form-control"
+                       autocomplete="current-password" required />
+            </div>
+
+            @if (Model.FailedAttempts > 0)
+            {
+                <p class="attempts-warning">
+                    Hátralévő próbálkozások: @(3 - Model.FailedAttempts)
+                </p>
+            }
+
+            <button type="submit" class="btn btn-primary btn-full">Bejelentkezés</button>
+        </form>
+
+@*         <p class="login-hint">Alapértelmezett: <code>admin</code> / <code>admin123</code></p> *@
+    </div>
+</div>
+</body>
+</html>
