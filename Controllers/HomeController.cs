@@ -1,25 +1,11 @@
-using LibrarySystem.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using System.Diagnostics;
+using LibrarySystem.Services;
 
-namespace LibrarySystem.Controllers
+namespace LibrarySystem.Controllers;
+
+[Authorize]
+public class HomeController(DataService data) : Controller
 {
-    public class HomeController : Controller
-    {
-        public IActionResult Index()
-        {
-            return View();
-        }
-
-        public IActionResult Privacy()
-        {
-            return View();
-        }
-
-        [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
-        public IActionResult Error()
-        {
-            return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
-        }
-    }
+    public IActionResult Index() => View(data.GetDashboard());
 }

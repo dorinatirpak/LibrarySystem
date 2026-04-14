@@ -2,8 +2,7 @@
 @{ ViewData["Title"] = "Összes kölcsönzés"; }
 
 <div class="page-header">
-    <h1>Kölcsönzések</h1>
-    <span class="badge badge-info">PROTOTÍPUS: Listázás</span>
+    <h1>Összes kölcsönzés <span class="badge badge-info">PROTOTÍPUS: Listázás</span></h1>
 </div>
 
 <div class="loans-summary-bar">
@@ -38,10 +37,14 @@
                     <tr class="@(lv.Loan.IsOverdue ? "row-overdue" : "")">
                         <td class="mono">@lv.Loan.Id</td>
                         <td>
+                            <a asp-controller="Books" asp-action="Details" asp-route-id="@lv.Loan.BookId">
                                 @lv.Book?.Title
+                            </a>
                         </td>
                         <td>
+                            <a asp-controller="Members" asp-action="Loans" asp-route-id="@lv.Loan.MemberId">
                                 @lv.Member?.Name
+                            </a>
                         </td>
                         <td>@lv.Loan.LoanDate.ToString("yyyy.MM.dd")</td>
                         <td>@lv.Loan.DueDate.ToString("yyyy.MM.dd")</td>

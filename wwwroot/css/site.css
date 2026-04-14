@@ -436,18 +436,3 @@ code { font-family: var(--font-mono); background: var(--bg-input); padding: 0.1e
     .data-table { font-size: 0.85rem; }
     .preview-grid { grid-template-columns: 1fr; }
 }
-
-/* ── Prototype Banner ── */
-.prototype-banner {
-    background: var(--warning);
-    color: var(--bg);
-    text-align: center;
-    padding: 0.35rem 0;
-    font-size: 0.85rem;
-    font-weight: 700;
-    font-family: var(--font-mono);
-    letter-spacing: 0.05em;
-    z-index: 1000;
-    position: relative;
-    box-shadow: 0 1px 10px rgba(0,0,0,0.3);
-}
