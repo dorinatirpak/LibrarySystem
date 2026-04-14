@@ -1,0 +1,69 @@
+@model BookSearchViewModel
+@{ ViewData["Title"] = "Könyvek"; }
+
+<div class="page-header">
+    <h1>Könyvek</h1>
+    <span class="badge badge-info">PROTOTÍPUS: Keresés és Listázás</span>
+</div>
+
+<div class="section-card">
+    <form asp-action="Search" method="post" class="search-bar">
+        <select name="SearchField" class="form-control form-control--sm">
+            <option value="Title"  selected="@(Model.SearchField=="Title")">Cím</option>
+            <option value="Author" selected="@(Model.SearchField=="Author")">Szerző</option>
+            <option value="ISBN"   selected="@(Model.SearchField=="ISBN")">ISBN</option>
+            <option value="Id"     selected="@(Model.SearchField=="Id")">Azonosító</option>
+        </select>
+        <input type="text" name="SearchText" value="@Model.SearchText"
+               placeholder="Keresett szöveg..." class="form-control" />
+        <button type="submit" class="btn btn-primary">Keresés</button>
+        <a asp-action="Index" class="btn btn-outline">Visszaállítás</a>
+    </form>
+</div>
+
+<div class="section-card">
+    @if (!Model.Results.Any())
+    {
+        <p class="empty-state">Nem található könyv a megadott feltételekkel.</p>
+    }
+    else
+    {
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Szerző</th>
+                    <th>Cím</th>
+                    <th>ISBN</th>
+                    <th>Év</th>
+                    <th>Példányok</th>
+                    <th>Szabad</th>
+                    <th>Kölcsönözhető</th>
+                    <th>Műveletek</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var book in Model.Results)
+                {
+                    var avail = Model.AvailableCopies.GetValueOrDefault(book.Id, 0);
+                    <tr>
+                        <td class="mono">@book.Id</td>
+                        <td>@book.Author</td>
+                        <td><strong>@book.Title</strong></td>
+                        <td class="mono">@book.ISBN</td>
+                        <td>@book.Year</td>
+                        <td>@book.CopyCount</td>
+                        <td>
+                            <span class="badge @(avail > 0 ? "badge-success" : "badge-danger")">@avail</span>
+                        </td>
+                        <td>@(book.IsLoanable ? "✓" : "✕")</td>
+                        <td class="actions">
+                            <a asp-action="Details" asp-route-id="@book.Id" class="btn-icon" title="Részletek">🔍</a>
+                            <span class="text-muted" style="font-size: 0.8rem; margin-left: 0.5rem;">[Többi funkció tervezés alatt]</span>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
+</div>
