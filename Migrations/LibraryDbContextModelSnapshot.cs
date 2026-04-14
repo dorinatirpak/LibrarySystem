@@ -1,0 +1,292 @@
+﻿using System;
+using LibrarySystem.Data;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
+
+#nullable disable
+
+namespace LibrarySystem.Migrations
+{
+    [DbContext(typeof(LibraryDbContext))]
+    partial class LibraryDbContextModelSnapshot : ModelSnapshot
+    {
+        protected override void BuildModel(ModelBuilder modelBuilder)
+        {
+#pragma warning disable 612, 618
+            modelBuilder.HasAnnotation("ProductVersion", "10.0.5");
+
+            modelBuilder.Entity("LibrarySystem.Models.Book", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("Author")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("CopyCount")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("Edition")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("ISBN")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("TEXT");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<bool>("IsLoanable")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("Publisher")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasMaxLength(300)
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("Year")
+                        .HasColumnType("INTEGER");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Books");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            Author = "Knuth, Donald E.",
+                            CopyCount = 3,
+                            Edition = "3rd",
+                            ISBN = "978-0201038040",
+                            IsDeleted = false,
+                            IsLoanable = true,
+                            Publisher = "Addison-Wesley",
+                            Title = "The Art of Computer Programming",
+                            Year = 1968
+                        },
+                        new
+                        {
+                            Id = 2,
+                            Author = "Martin, Robert C.",
+                            CopyCount = 2,
+                            Edition = "1st",
+                            ISBN = "978-0132350884",
+                            IsDeleted = false,
+                            IsLoanable = true,
+                            Publisher = "Prentice Hall",
+                            Title = "Clean Code",
+                            Year = 2008
+                        },
+                        new
+                        {
+                            Id = 3,
+                            Author = "Gamma et al.",
+                            CopyCount = 1,
+                            Edition = "1st",
+                            ISBN = "978-0201633610",
+                            IsDeleted = false,
+                            IsLoanable = true,
+                            Publisher = "Addison-Wesley",
+                            Title = "Design Patterns",
+                            Year = 1994
+                        });
+                });
+
+            modelBuilder.Entity("LibrarySystem.Models.Librarian", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("FullName")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("PasswordHash")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Username")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Username")
+                        .IsUnique();
+
+                    b.ToTable("Librarians");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            FullName = "Rendszergazda",
+                            PasswordHash = "240BE518FABD2724DDB6F04EEB1DA5967448D7E831C08C8FA822809F74C720A9",
+                            Username = "admin"
+                        });
+                });
+
+            modelBuilder.Entity("LibrarySystem.Models.LibraryMember", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("Address")
+                        .IsRequired()
+                        .HasMaxLength(300)
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Contact")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("TEXT");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("MemberType")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Members");
+
+                    b.HasDiscriminator<int>("MemberType");
+
+                    b.UseTphMappingStrategy();
+                });
+
+            modelBuilder.Entity("LibrarySystem.Models.Loan", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("BookId")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<DateTime>("DueDate")
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime>("LoanDate")
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("MemberId")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<DateTime?>("ReturnDate")
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("BookId");
+
+                    b.HasIndex("MemberId");
+
+                    b.ToTable("Loans");
+                });
+
+            modelBuilder.Entity("LibrarySystem.Models.ExternalMember", b =>
+                {
+                    b.HasBaseType("LibrarySystem.Models.LibraryMember");
+
+                    b.HasDiscriminator().HasValue(2);
+                });
+
+            modelBuilder.Entity("LibrarySystem.Models.OtherMember", b =>
+                {
+                    b.HasBaseType("LibrarySystem.Models.LibraryMember");
+
+                    b.HasDiscriminator().HasValue(3);
+                });
+
+            modelBuilder.Entity("LibrarySystem.Models.ProfessorMember", b =>
+                {
+                    b.HasBaseType("LibrarySystem.Models.LibraryMember");
+
+                    b.HasDiscriminator().HasValue(1);
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 2,
+                            Address = "Debrecen, Kossuth u. 5.",
+                            Contact = "nagy.peter@univ.hu",
+                            IsDeleted = false,
+                            MemberType = 1,
+                            Name = "Dr. Nagy Peter"
+                        });
+                });
+
+            modelBuilder.Entity("LibrarySystem.Models.StudentMember", b =>
+                {
+                    b.HasBaseType("LibrarySystem.Models.LibraryMember");
+
+                    b.HasDiscriminator().HasValue(0);
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            Address = "Budapest, Fo u. 1.",
+                            Contact = "kovacs.anna@edu.hu",
+                            IsDeleted = false,
+                            MemberType = 0,
+                            Name = "Kovacs Anna"
+                        });
+                });
+
+            modelBuilder.Entity("LibrarySystem.Models.Loan", b =>
+                {
+                    b.HasOne("LibrarySystem.Models.Book", "Book")
+                        .WithMany("Loans")
+                        .HasForeignKey("BookId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("LibrarySystem.Models.LibraryMember", "Member")
+                        .WithMany("Loans")
+                        .HasForeignKey("MemberId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Book");
+
+                    b.Navigation("Member");
+                });
+
+            modelBuilder.Entity("LibrarySystem.Models.Book", b =>
+                {
+                    b.Navigation("Loans");
+                });
+
+            modelBuilder.Entity("LibrarySystem.Models.LibraryMember", b =>
+                {
+                    b.Navigation("Loans");
+                });
+#pragma warning restore 612, 618
+        }
+    }
+}
