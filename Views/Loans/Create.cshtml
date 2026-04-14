@@ -1,0 +1,93 @@
+@model CreateLoanViewModel
+@{ ViewData["Title"] = "Kölcsönzés rögzítése"; }
+
+<div class="page-header">
+    <h1>Kölcsönzés rögzítése</h1>
+    <a asp-controller="Books" asp-action="Index" class="btn btn-outline">← Vissza</a>
+</div>
+
+@if (Model.ErrorMessage != null)
+{
+    <div class="alert alert-error">✕ @Model.ErrorMessage</div>
+}
+
+<div class="section-card form-card">
+    <form asp-action="Create" method="post">
+        <div class="form-grid">
+            <div class="form-group">
+                <label>Könyv *</label>
+                <select name="BookId" class="form-control" required>
+                    <option value="">-- Válasszon könyvet --</option>
+                    @foreach (var b in Model.AvailableBooks)
+                    {
+                        <option value="@b.Id" selected="@(Model.BookId == b.Id)">
+                            @b.Title – @b.Author (ISBN: @b.ISBN)
+                        </option>
+                    }
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Tag *</label>
+                <select name="MemberId" class="form-control" required>
+                    <option value="">-- Válasszon tagot --</option>
+                    @foreach (var m in Model.Members)
+                    {
+                        <option value="@m.Id" selected="@(Model.MemberId == m.Id)"
+                                data-type="@m.MemberTypeDisplay"
+                                data-days="@m.LoanDays"
+                                data-max="@(m.MaxBooks == int.MaxValue ? "Korlátlan" : m.MaxBooks.ToString())">
+                            @m.Name (@m.MemberTypeDisplay)
+                        </option>
+                    }
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Kölcsönzés dátuma *</label>
+                <input type="date" name="LoanDate"
+                       value="@Model.LoanDate.ToString("yyyy-MM-dd")"
+                       class="form-control" required />
+            </div>
+        </div>
+
+        <div class="loan-preview" id="loanPreview" style="display:none">
+            <h3>Kölcsönzés előnézete</h3>
+            <div class="preview-grid">
+                <div><span class="preview-label">Tag típusa:</span> <span id="previewType">–</span></div>
+                <div><span class="preview-label">Kölcsönzési időtartam:</span> <span id="previewDays">–</span></div>
+                <div><span class="preview-label">Max könyv:</span> <span id="previewMax">–</span></div>
+                <div><span class="preview-label">Lejárati  határidő:</span> <strong id="previewDue">–</strong></div>
+            </div>
+        </div>
+
+        <div class="form-actions">
+            <button type="submit" class="btn btn-primary">Kölcsönzés rögzítése</button>
+            <a asp-controller="Books" asp-action="Index" class="btn btn-outline">Mégse</a>
+        </div>
+    </form>
+</div>
+
+<script>
+const memberSel = document.getElementById ? document.querySelector('[name=MemberId]') : null;
+const dateSel   = document.querySelector('[name=LoanDate]');
+const preview   = document.getElementById('loanPreview');
+
+function updatePreview() {
+    const opt = memberSel.selectedOptions[0];
+    if (!opt || !opt.value) { preview.style.display='none'; return; }
+    const days = parseInt(opt.dataset.days);
+    const loanDate = new Date(dateSel.value);
+    const dueDate  = new Date(loanDate);
+    dueDate.setDate(dueDate.getDate() + days);
+    document.getElementById('previewType').textContent = opt.dataset.type;
+    document.getElementById('previewDays').textContent = days + ' nap';
+    document.getElementById('previewMax').textContent  = opt.dataset.max;
+    document.getElementById('previewDue').textContent  = dueDate.toLocaleDateString('hu-HU');
+    preview.style.display = 'block';
+}
+
+if (memberSel) {
+    memberSel.addEventListener('change', updatePreview);
+    dateSel.addEventListener('change', updatePreview);
+    updatePreview();
+}
+</script>
