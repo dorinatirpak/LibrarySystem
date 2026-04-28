@@ -13,6 +13,5 @@ public class Book
     public bool IsDeleted { get; set; } = false;
     public int CopyCount { get; set; } = 1;
 
-    // IDE0028 Fix: Simplified to []
     public ICollection<Loan> Loans { get; set; } = [];
 }

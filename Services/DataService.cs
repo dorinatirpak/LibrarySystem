@@ -199,8 +199,8 @@ public class DataService(LibraryDbContext db)
         db.SaveChanges();
 
         string msg = overdue
-            ? $"Konyv visszaveve. Keses: {days} nap!"
-            : "Konyv sikeresen visszaveve.";
+            ? $"Könyv visszavéve. Késés: {days} nap!"
+            : "Könyv sikeresen visszavéve.";
 
         return (true, msg, overdue, days);
     }
