@@ -57,14 +57,14 @@ public class DataService(LibraryDbContext db)
     public (bool success, string message) DeleteBookCopy(int bookId, bool deleteAll)
     {
         var book = GetBook(bookId);
-        if (book == null) return (false, "A konyv nem talalhato.");
+        if (book == null) return (false, "A könyv nem található.");
 
         int loanedCount = db.Loans.Count(l => l.BookId == bookId && l.ReturnDate == null);
 
         if (deleteAll)
         {
             if (loanedCount > 0)
-                return (false, $"Nem torolheto: {loanedCount} peldany ki van kolcsonozve.");
+                return (false, $"Nem törölhető: {loanedCount} példány kölcsönzés alatt áll.");
             book.IsDeleted = true;
             book.CopyCount = 0;
         }
@@ -72,13 +72,13 @@ public class DataService(LibraryDbContext db)
         {
             int available = book.CopyCount - loanedCount;
             if (available <= 0)
-                return (false, "Nincs szabad peldany. Minden ki van kolcsonozve.");
+                return (false, "Nincs szabad példány. Mind kölcsönzés alatt áll.");
             book.CopyCount--;
             if (book.CopyCount == 0) book.IsDeleted = true;
         }
 
         db.SaveChanges();
-        return (true, "Sikeres torles.");
+        return (true, "Sikeres törlés.");
     }
 
     public List<Book> SearchBooks(string field, string text)
@@ -129,10 +129,10 @@ public class DataService(LibraryDbContext db)
     public (bool success, string message) DeleteMember(int id)
     {
         var member = GetMember(id);
-        if (member == null) return (false, "A tag nem talalhato.");
+        if (member == null) return (false, "A tag nem található.");
         member.IsDeleted = true;
         db.SaveChanges();
-        return (true, "Tag sikeresen torolve.");
+        return (true, "Tag sikeresen törölve.");
     }
 
     public List<LibraryMember> SearchMembers(string field, string text)
@@ -161,17 +161,17 @@ public class DataService(LibraryDbContext db)
     public (bool success, string message, Loan? loan) CreateLoan(int bookId, int memberId, DateTime loanDate)
     {
         var book = GetBook(bookId);
-        if (book == null) return (false, "A konyv nem talalhato.", null);
-        if (!book.IsLoanable) return (false, "Ez a konyv nem kolcsonozheto.", null);
+        if (book == null) return (false, "A könyv nem található.", null);
+        if (!book.IsLoanable) return (false, "Ez a könyv nem kölcsönözhető.", null);
         if (GetAvailableCopies(bookId) <= 0)
-            return (false, "Nincs szabad peldany.", null);
+            return (false, "Nincs szabad példány.", null);
 
         var member = GetMember(memberId);
-        if (member == null) return (false, "A tag nem talalhato.", null);
+        if (member == null) return (false, "A tag nem található.", null);
 
         int currentLoans = db.Loans.Count(l => l.MemberId == memberId && l.ReturnDate == null);
         if (member.MaxBooks != int.MaxValue && currentLoans >= member.MaxBooks)
-            return (false, $"A tag elerte a kolcsonzesi limitet ({member.MaxBooks} konyv).", null);
+            return (false, $"A tag elérte a kölcsönzési limitet ({member.MaxBooks} könyv).", null);
 
         var loan = new Loan
         {
@@ -183,14 +183,14 @@ public class DataService(LibraryDbContext db)
 
         db.Loans.Add(loan);
         db.SaveChanges();
-        return (true, "Sikeres kolcsonzes.", loan);
+        return (true, "Sikeres kölcsönzés.", loan);
     }
 
     public (bool success, string message, bool overdue, int overdueDays) ReturnBook(int loanId)
     {
         var loan = GetLoan(loanId);
-        if (loan == null) return (false, "A kolcsonzes nem talalhato.", false, 0);
-        if (loan.ReturnDate.HasValue) return (false, "Ez a konyv mar mar vissza lett hozva.", false, 0);
+        if (loan == null) return (false, "A kölcsönzés nem található.", false, 0);
+        if (loan.ReturnDate.HasValue) return (false, "Ez a könyv már vissza lett hozva.", false, 0);
 
         bool overdue = DateTime.Today > loan.DueDate;
         int days = overdue ? (DateTime.Today - loan.DueDate).Days : 0;
