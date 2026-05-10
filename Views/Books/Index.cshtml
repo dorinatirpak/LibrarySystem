@@ -1,0 +1,59 @@
+@model BookSearchViewModel
+@{ ViewData["Title"] = "Könyvek"; }
+
+<div class="page-header">
+    <h1>Könyvek</h1>
+    <div class="header-actions">
+        <a asp-action="Create" class="btn btn-primary"><i class="fa-solid fa-plus"></i> Új könyv felvétele</a>
+    </div>
+</div>
+
+<div class="section-card">
+    <form asp-action="Search" method="post" class="search-bar" id="searchForm">
+        <select name="SearchField" id="SearchField" class="form-control">
+            <option value="Title"  selected="@(Model.SearchField=="Title")">Cím szerint</option>
+            <option value="Author" selected="@(Model.SearchField=="Author")">Szerző szerint</option>
+            <option value="ISBN"   selected="@(Model.SearchField=="ISBN")">ISBN szerint</option>
+            <option value="Id"     selected="@(Model.SearchField=="Id")">ID szerint</option>
+        </select>
+        <div style="position:relative; flex:1; display:flex; align-items:center;">
+            <i class="fa-solid fa-magnifying-glass" style="position:absolute; left:1rem; color:var(--text-muted);"></i>
+            <input type="text" name="SearchText" id="SearchText" value="@Model.SearchText"
+                   placeholder="Keresés a könyvtárban..." class="form-control" autocomplete="off" style="padding-left:2.8rem;" />
+        </div>
+        <button type="submit" class="btn btn-primary"><i class="fa-solid fa-search"></i></button>
+        <a asp-action="Index" class="btn btn-outline" title="Visszaállítás"><i class="fa-solid fa-rotate-left"></i></a>
+    </form>
+</div>
+
+<div class="section-card" id="resultsContainer">
+    <partial name="_BookTablePartial" model="Model" />
+</div>
+
+@section Scripts {
+    <script>
+        const searchText = document.getElementById('SearchText');
+        const searchField = document.getElementById('SearchField');
+        const resultsContainer = document.getElementById('resultsContainer');
+        let timeout = null;
+
+        searchText.addEventListener('input', function () {
+            clearTimeout(timeout);
+            timeout = setTimeout(function () {
+                const text = searchText.value;
+                const field = searchField.value;
+                
+                fetch(`/Books/SearchDynamic?field=${field}&text=${encodeURIComponent(text)}`)
+                    .then(response => response.text())
+                    .then(html => {
+                        resultsContainer.innerHTML = html;
+                    });
+            }, 300); // Debounce
+        });
+
+        // Search when field changes too
+        searchField.addEventListener('change', function() {
+            searchText.dispatchEvent(new Event('input'));
+        });
+    </script>
+}

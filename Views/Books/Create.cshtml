@@ -1,0 +1,53 @@
+@model Book
+@{ ViewData["Title"] = "Új könyv felvétele"; }
+
+<div class="page-header">
+    <h1>Új könyv felvétele</h1>
+    <a asp-action="Index" class="btn btn-outline">← Vissza</a>
+</div>
+
+<div class="section-card form-card">
+    <form asp-action="Create" method="post">
+        <div class="form-grid">
+            <div class="form-group">
+                <label>Szerző *</label>
+                <input asp-for="Author" class="form-control" required />
+            </div>
+            <div class="form-group">
+                <label>Cím *</label>
+                <input asp-for="Title" class="form-control" required />
+            </div>
+            <div class="form-group">
+                <label>Kiadó</label>
+                <input asp-for="Publisher" class="form-control" />
+            </div>
+            <div class="form-group">
+                <label>Kiadási év</label>
+                <input asp-for="Year" type="number" class="form-control" min="1000" max="2100" />
+            </div>
+            <div class="form-group">
+                <label>Kiadás</label>
+                <input asp-for="Edition" class="form-control" placeholder="pl. 3rd" />
+            </div>
+            <div class="form-group">
+                <label>ISBN</label>
+                <input asp-for="ISBN" class="form-control" placeholder="978-..." />
+            </div>
+            <div class="form-group">
+                <label>Példányszám</label>
+                <input asp-for="CopyCount" type="number" class="form-control" min="1" value="1" />
+            </div>
+            <div class="form-group form-group--checkbox">
+                <label>
+                    <input asp-for="IsLoanable" type="checkbox" checked />
+                    Kölcsönözhető
+                </label>
+            </div>
+        </div>
+        <div class="form-actions">
+            <button type="submit" class="btn btn-primary">Mentés</button>
+            <a asp-action="Index" class="btn btn-outline">Mégse</a>
+        </div>
+    </form>
+</div>
+

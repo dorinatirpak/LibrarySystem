@@ -1,0 +1,66 @@
+@model BookSearchViewModel
+
+@if (!Model.Results.Any())
+{
+    <p class="empty-state">Nem található könyv a megadott feltételekkel.</p>
+}
+else
+{
+    <table class="data-table">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Szerző</th>
+                <th>Cím</th>
+                <th>ISBN</th>
+                <th>Év</th>
+                <th>Összes</th>
+                <th>Szabad</th>
+                <th><i class="fa-solid fa-handshake"></i></th>
+                <th>Műveletek</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var book in Model.Results)
+            {
+                var avail = Model.AvailableCopies.GetValueOrDefault(book.Id, 0);
+                <tr>
+                    <td class="mono">@book.Id</td>
+                    <td>@book.Author</td>
+                    <td><strong>@book.Title</strong></td>
+                    <td class="mono">@book.ISBN</td>
+                    <td>@book.Year</td>
+                    <td>@book.CopyCount db</td>
+                    <td>
+                        <span class="badge @(avail > 0 ? "badge-success" : "badge-danger")">
+                            <i class="fa-solid @(avail > 0 ? "fa-circle-check" : "fa-circle-xmark")"></i> @avail
+                        </span>
+                    </td>
+                    <td>
+                        @if (book.IsLoanable)
+                        {
+                            <i class="fa-solid fa-circle-check" style="color: var(--success);" title="Kölcsönözhető"></i>
+                        }
+                        else
+                        {
+                            <i class="fa-solid fa-circle-xmark" style="color: var(--danger);" title="Nem kölcsönözhető"></i>
+                        }
+                    </td>
+                    <td class="actions">
+                        <div>
+                            <a asp-action="Details" asp-route-id="@book.Id" class="btn btn-sm btn-outline" title="Részletek">
+                                <i class="fa-solid fa-eye"></i>
+                            </a>
+                            <a asp-action="Edit" asp-route-id="@book.Id" class="btn btn-sm btn-outline" title="Szerkesztés">
+                                <i class="fa-solid fa-pen-to-square"></i>
+                            </a>
+                            <a asp-action="Delete" asp-route-id="@book.Id" class="btn btn-sm btn-danger" title="Törlés">
+                                <i class="fa-solid fa-trash-can"></i>
+                            </a>
+                        </div>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
