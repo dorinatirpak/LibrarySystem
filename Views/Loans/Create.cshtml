@@ -15,7 +15,7 @@
     <form asp-action="Create" method="post" id="loanForm">
         <div class="form-grid">
             <div class="form-group" style="grid-column: span 2;">
-                <label>Tag kiválasztása (Név vagy ID) *</label>
+                <label>Tag kiválasztása (Név) *</label>
                 <div class="search-select-container">
                     <input type="text" id="memberSearch" class="form-control" placeholder="Gépeljen a kereséshez..." autocomplete="off" required />
                     <input type="hidden" name="MemberId" id="MemberId" value="@(Model.MemberId > 0 ? Model.MemberId : "")" />
@@ -24,7 +24,7 @@
             </div>
 
             <div class="form-group" style="grid-column: span 2;">
-                <label>Könyvek hozzáadása (Cím, Szerző, ISBN vagy ID) *</label>
+                <label>Könyvek hozzáadása (Cím, Szerző vagy ISBN) *</label>
                 <div class="search-select-container">
                     <input type="text" id="bookSearch" class="form-control" placeholder="Keressen és adjon hozzá könyveket..." autocomplete="off" />
                     <div id="bookResults" class="search-results-list"></div>
