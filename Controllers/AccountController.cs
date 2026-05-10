@@ -7,7 +7,7 @@ using System.Security.Claims;
 
 namespace LibrarySystem.Controllers;
 
-public class AccountController(DataService data) : Controller
+public class AccountController(DataService data, IHostApplicationLifetime appLifetime) : Controller
 {
     private const int MaxAttempts = 3;
 
@@ -30,6 +30,7 @@ public class AccountController(DataService data) : Controller
         {
             model.ErrorMessage = "Túl sok sikertelen próbálkozás. A program leáll.";
             model.FailedAttempts = attempts;
+            appLifetime.StopApplication();
             return View("Lockout");
         }
 
@@ -40,7 +41,10 @@ public class AccountController(DataService data) : Controller
             HttpContext.Session.SetInt32("LoginAttempts", attempts);
 
             if (attempts >= MaxAttempts)
+            {
+                appLifetime.StopApplication();
                 return View("Lockout");
+            }
 
             model.ErrorMessage = $"Hibás felhasználónév vagy jelszó. ({attempts}/{MaxAttempts} próbálkozás)";
             model.FailedAttempts = attempts;
