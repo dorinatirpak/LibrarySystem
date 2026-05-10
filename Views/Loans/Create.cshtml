@@ -1,0 +1,263 @@
+@model CreateLoanViewModel
+@{ ViewData["Title"] = "Kölcsönzés rögzítése"; }
+
+<div class="page-header">
+    <h1>Kölcsönzés rögzítése</h1>
+    <a asp-controller="Books" asp-action="Index" class="btn btn-outline">← Vissza</a>
+</div>
+
+@if (Model.ErrorMessage != null)
+{
+    <div class="alert alert-error"> @Model.ErrorMessage</div>
+}
+
+<div class="section-card form-card">
+    <form asp-action="Create" method="post" id="loanForm">
+        <div class="form-grid">
+            <div class="form-group" style="grid-column: span 2;">
+                <label>Tag kiválasztása (Név vagy ID) *</label>
+                <div class="search-select-container">
+                    <input type="text" id="memberSearch" class="form-control" placeholder="Gépeljen a kereséshez..." autocomplete="off" required />
+                    <input type="hidden" name="MemberId" id="MemberId" value="@(Model.MemberId > 0 ? Model.MemberId : "")" />
+                    <div id="memberResults" class="search-results-list"></div>
+                </div>
+            </div>
+
+            <div class="form-group" style="grid-column: span 2;">
+                <label>Könyvek hozzáadása (Cím, Szerző, ISBN vagy ID) *</label>
+                <div class="search-select-container">
+                    <input type="text" id="bookSearch" class="form-control" placeholder="Keressen és adjon hozzá könyveket..." autocomplete="off" />
+                    <div id="bookResults" class="search-results-list"></div>
+                </div>
+                
+                <div id="selectedBooksList" class="selected-items-list">
+                    <!-- Selected books will appear here -->
+                </div>
+                <!-- Hidden inputs for BookIds will be generated here -->
+                <div id="hiddenBookInputs"></div>
+            </div>
+
+            <div class="form-group">
+                <label>Kölcsönzés dátuma *</label>
+                <input type="date" name="LoanDate" id="LoanDate"
+                       value="@Model.LoanDate.ToString("yyyy-MM-dd")"
+                       class="form-control" required />
+            </div>
+        </div>
+
+        <div class="loan-preview" id="loanPreview" style="display:none; margin-top: 2rem;">
+            <h3>Kölcsönzés összesítése</h3>
+            <div class="preview-grid">
+                <div><span class="preview-label">Tag típusa:</span> <span id="previewType">–</span></div>
+                <div><span class="preview-label">Kölcsönzési időtartam:</span> <span id="previewDays">–</span></div>
+                <div><span class="preview-label">Lejárati határidő:</span> <strong id="previewDue">–</strong></div>
+                <div><span class="preview-label">Kiválasztott könyvek száma:</span> <span id="previewCount">0</span></div>
+            </div>
+        </div>
+
+        <div class="form-actions" style="margin-top: 2rem;">
+            <button type="submit" class="btn btn-primary">Kölcsönzés véglegesítése</button>
+            <a asp-controller="Books" asp-action="Index" class="btn btn-outline">Mégse</a>
+        </div>
+    </form>
+</div>
+
+@section Scripts {
+    <script>
+        const bookSearch = document.getElementById('bookSearch');
+        const bookResults = document.getElementById('bookResults');
+        const selectedBooksList = document.getElementById('selectedBooksList');
+        const hiddenBookInputs = document.getElementById('hiddenBookInputs');
+
+        const memberSearch = document.getElementById('memberSearch');
+        const memberId = document.getElementById('MemberId');
+        const memberResults = document.getElementById('memberResults');
+
+        const dateInput = document.getElementById('LoanDate');
+        const preview = document.getElementById('loanPreview');
+
+        let selectedMemberData = null;
+        let selectedBooks = [];
+
+        function setupAutocomplete(input, results, url, onSelect) {
+            let timeout = null;
+
+            input.addEventListener('input', () => {
+                clearTimeout(timeout);
+                const term = input.value;
+                if (term.length < 2) {
+                    results.style.display = 'none';
+                    return;
+                }
+
+                timeout = setTimeout(() => {
+                    fetch(`${url}?term=${encodeURIComponent(term)}`)
+                        .then(r => r.json())
+                        .then(data => {
+                            results.innerHTML = '';
+                            if (data.length === 0) {
+                                results.innerHTML = '<div class="search-result-item">Nincs találat</div>';
+                            } else {
+                                data.forEach(item => {
+                                    const div = document.createElement('div');
+                                    div.className = 'search-result-item';
+                                    
+                                    if (url.includes('Books')) {
+                                        div.innerHTML = `
+                                            <div style="display:flex; justify-content:space-between; align-items:center;">
+                                                <div style="flex:1">
+                                                    <strong>${item.title}</strong>
+                                                    <div class="item-sub">${item.author} | ISBN: ${item.isbn} | ${item.year}</div>
+                                                </div>
+                                                <span class="mono" style="color:var(--accent); margin-left:1rem;">#${item.id}</span>
+                                            </div>
+                                        `;
+                                    } else {
+                                        div.innerHTML = `
+                                            <div style="display:flex; justify-content:space-between; align-items:center;">
+                                                <div style="flex:1">
+                                                    <strong>${item.name}</strong>
+                                                    <div class="item-sub">${item.memberTypeDisplay} | ${item.contact}</div>
+                                                </div>
+                                                <span class="mono" style="color:var(--accent); margin-left:1rem;">#${item.id}</span>
+                                            </div>
+                                        `;
+                                    }
+
+                                    div.onclick = () => {
+                                        results.style.display = 'none';
+                                        onSelect(item);
+                                    };
+                                    results.appendChild(div);
+                                });
+                            }
+                            results.style.display = 'block';
+                        });
+                }, 300);
+            });
+
+            document.addEventListener('click', (e) => {
+                if (!input.contains(e.target) && !results.contains(e.target)) {
+                    results.style.display = 'none';
+                }
+            });
+        }
+
+        setupAutocomplete(bookSearch, bookResults, '/Loans/SearchBooks', (book) => {
+            addBook(book);
+            bookSearch.value = '';
+        });
+
+        setupAutocomplete(memberSearch, memberResults, '/Loans/SearchMembers', (member) => {
+            memberSearch.value = member.name;
+            memberId.value = member.id;
+            selectedMemberData = member;
+            updatePreview();
+        });
+
+        function addBook(book) {
+            if (selectedBooks.some(b => b.id === book.id)) {
+                alert('Ez a könyv már szerepel a listában!');
+                return;
+            }
+            selectedBooks.push(book);
+            renderSelectedBooks();
+            updatePreview();
+        }
+
+        function removeBook(id) {
+            selectedBooks = selectedBooks.filter(b => b.id !== id);
+            renderSelectedBooks();
+            updatePreview();
+        }
+
+        function renderSelectedBooks() {
+            selectedBooksList.innerHTML = '';
+            hiddenBookInputs.innerHTML = '';
+            
+            selectedBooks.forEach(book => {
+                const div = document.createElement('div');
+                div.className = 'selected-item';
+                div.innerHTML = `
+                    <div>
+                        <strong>${book.title}</strong>
+                        <span style="color:var(--text-dim); font-size:0.85rem; margin-left:0.5rem;">(${book.author})</span>
+                    </div>
+                    <span class="remove-item" onclick="removeBook(${book.id})">✖</span>
+                `;
+                selectedBooksList.appendChild(div);
+
+                const input = document.createElement('input');
+                input.type = 'hidden';
+                input.name = 'BookIds';
+                input.value = book.id;
+                hiddenBookInputs.appendChild(input);
+            });
+            
+            document.getElementById('previewCount').textContent = selectedBooks.length;
+        }
+
+        function updatePreview() {
+            if (!selectedMemberData || selectedBooks.length === 0) {
+                preview.style.display = (selectedMemberData || selectedBooks.length > 0) ? 'block' : 'none';
+                if (!selectedMemberData && selectedBooks.length === 0) return;
+            } else {
+                preview.style.display = 'block';
+            }
+
+            if (selectedMemberData) {
+                const days = parseInt(selectedMemberData.loanDays);
+                const loanDate = new Date(dateInput.value);
+                const dueDate = new Date(loanDate);
+                dueDate.setDate(dueDate.getDate() + days);
+
+                document.getElementById('previewType').textContent = selectedMemberData.memberTypeDisplay;
+                document.getElementById('previewDays').textContent = days + ' nap';
+                document.getElementById('previewDue').textContent = dueDate.toLocaleDateString('hu-HU');
+            }
+            
+            document.getElementById('previewCount').textContent = selectedBooks.length;
+        }
+
+        dateInput.addEventListener('change', updatePreview);
+
+        window.addEventListener('DOMContentLoaded', () => {
+            // If we came from a specific book or member
+            const initialBookId = "@(Model.BookIds.FirstOrDefault() > 0 ? Model.BookIds.First() : "")";
+            const initialMemberId = "@(Model.MemberId > 0 ? Model.MemberId : "")";
+
+            if (initialBookId) {
+                fetch(`/Loans/SearchBooks?term=${initialBookId}`)
+                    .then(r => r.json())
+                    .then(data => {
+                        const book = data.find(b => b.id == initialBookId);
+                        if (book) addBook(book);
+                    });
+            }
+            if (initialMemberId) {
+                fetch(`/Loans/SearchMembers?term=${initialMemberId}`)
+                    .then(r => r.json())
+                    .then(data => {
+                        const member = data.find(m => m.id == initialMemberId);
+                        if (member) {
+                            memberSearch.value = member.name;
+                            memberId.value = member.id;
+                            selectedMemberData = member;
+                            updatePreview();
+                        }
+                    });
+            }
+        });
+
+        document.getElementById('loanForm').onsubmit = (e) => {
+            if (selectedBooks.length === 0) {
+                alert('Kérjük, válasszon ki legalább egy könyvet!');
+                return false;
+            }
+            if (!memberId.value) {
+                alert('Kérjük, válasszon ki egy tagot!');
+                return false;
+            }
+        };
+    </script>
+}

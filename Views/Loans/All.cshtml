@@ -1,0 +1,74 @@
+@model List<LoanViewModel>
+@{ ViewData["Title"] = "Összes kölcsönzés"; }
+
+<div class="page-header">
+    <h1>Összes kölcsönzés</h1>
+</div>
+
+<div class="loans-summary-bar">
+    <span>Összes: <strong>@Model.Count</strong></span>
+    <span>Aktív: <strong>@Model.Count(x => !x.Loan.IsReturned)</strong></span>
+    <span>Késésben: <strong class="@(Model.Any(x=>x.Loan.IsOverdue) ? "text-danger" : "")">@Model.Count(x => x.Loan.IsOverdue)</strong></span>
+    <span>Visszahozva: <strong>@Model.Count(x => x.Loan.IsReturned)</strong></span>
+</div>
+
+<div class="section-card">
+    @if (!Model.Any())
+    {
+        <p class="empty-state">Nincsenek kölcsönzések.</p>
+    }
+    else
+    {
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Könyv</th>
+                    <th>Tag</th>
+                    <th>Kölcsönzés</th>
+                    <th>Határidő</th>
+                    <th>Visszahozva</th>
+                    <th>Büntetés</th>
+                    <th>Állapot</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var lv in Model)
+                {
+                    <tr class="@(lv.Loan.IsOverdue ? "row-overdue" : "")">
+                        <td class="mono">@lv.Loan.Id</td>
+                        <td>
+                            <a asp-controller="Books" asp-action="Details" asp-route-id="@lv.Loan.BookId">
+                                @lv.Book?.Title
+                            </a>
+                        </td>
+                        <td>
+                            <a asp-controller="Members" asp-action="Loans" asp-route-id="@lv.Loan.MemberId">
+                                @lv.Member?.Name
+                            </a>
+                        </td>
+                        <td>@lv.Loan.LoanDate.ToString("yyyy.MM.dd")</td>
+                        <td>@lv.Loan.DueDate.ToString("yyyy.MM.dd")</td>
+                        <td>@(lv.Loan.ReturnDate.HasValue ? lv.Loan.ReturnDate.Value.ToString("yyyy.MM.dd") : "–")</td>
+                        <td class="mono">@(lv.Loan.FineAmount > 0 ? $"{lv.Loan.FineAmount} Ft" : "–")</td>
+                        <td>
+                            @if (lv.Loan.IsReturned)
+                            {
+                                <span class="badge badge-success">Visszahozva</span>
+                            }
+                            else if (lv.Loan.IsOverdue)
+                            {
+                                <span class="badge badge-danger">Késés: @lv.Loan.OverdueDays nap</span>
+                            }
+                            else
+                            {
+                                <span class="badge badge-info">Kölcsönözve</span>
+                            }
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
+</div>
+
