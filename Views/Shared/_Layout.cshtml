@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] – Könyvtári Rendszer</title>
+    <link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,600;1,400&family=JetBrains+Mono:wght@400;500&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" />
+</head>
+<body>
+@if (User.Identity?.IsAuthenticated == true)
+{
+<nav class="navbar">
+    <a class="navbar-brand" asp-controller="Home" asp-action="Index">
+        <i class="fa-solid fa-book-bookmark brand-icon"></i> Könyvtár
+    </a>
+    <div class="nav-links">
+        <a asp-controller="Books"   asp-action="Index"><i class="fa-solid fa-book"></i> Könyvek</a>
+        <a asp-controller="Members" asp-action="Index"><i class="fa-solid fa-users"></i> Tagok</a>
+        <a asp-controller="Loans"   asp-action="All"><i class="fa-solid fa-hand-holding-hand"></i> Kölcsönzések</a>
+        <a asp-controller="Reports" asp-action="Index"><i class="fa-solid fa-chart-line"></i> Jelentések</a>
+    </div>
+    <div class="nav-user">
+        <span class="user-greeting"><i class="fa-solid fa-circle-user"></i> @User.FindFirst(System.Security.Claims.ClaimTypes.GivenName)?.Value</span>
+        <a asp-controller="Account" asp-action="Logout" class="logout-link" title="Kilépés">
+            <i class="fa-solid fa-right-from-bracket"></i>
+        </a>
+    </div>
+</nav>
+}
+
+<main class="main-content">
+    @if (TempData["Success"] != null)
+    {
+        <div class="alert alert-success"> @TempData["Success"]</div>
+    }
+    @if (TempData["Warning"] != null)
+    {
+        <div class="alert alert-warning">@TempData["Warning"]</div>
+    }
+    @if (TempData["Error"] != null)
+    {
+        <div class="alert alert-error"> @TempData["Error"]</div>
+    }
+    @RenderBody()
+</main>
+
+<script src="~/js/site.js"></script>
+@await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>
