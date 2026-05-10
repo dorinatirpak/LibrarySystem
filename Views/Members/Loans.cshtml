@@ -1,0 +1,128 @@
+@model MemberLoansViewModel
+@{ ViewData["Title"] = Model.Member.Name + " – Kölcsönzések"; }
+
+<div class="page-header">
+    <div>
+        <h1>@Model.Member.Name</h1>
+        <p class="page-subtitle">@Model.Member.MemberTypeDisplay · @Model.Member.Contact</p>
+    </div>
+    <div class="header-actions">
+        <a asp-controller="Loans" asp-action="Create" asp-route-memberId="@Model.Member.Id"
+           class="btn btn-primary">+ Kölcsönzés</a>
+        <a asp-action="Index" class="btn btn-outline">← Vissza</a>
+    </div>
+</div>
+
+<div class="loans-info-bar">
+    <span>Max kölcsönözhető: <strong>@(Model.Member.MaxBooks == int.MaxValue ? "Korlátlan" : Model.Member.MaxBooks.ToString())</strong></span>
+    <span>Kölcsönzési időtartam: <strong>@Model.Member.LoanDays nap</strong></span>
+    <span>Jelenleg kölcsönözve: <strong>@Model.ActiveLoans.Count db</strong></span>
+    @{
+        var totalFine = Model.ReturnedLoans.Sum(x => x.Loan.FineAmount);
+    }
+    <span>Összes késedelmi díj: <strong class="@(totalFine > 0 ? "text-danger" : "")">@totalFine Ft</strong></span>
+</div>
+
+<div class="section-card">
+    <h2>Kölcsönzés alatt álló könyvek (@Model.ActiveLoans.Count)</h2>
+    @if (!Model.ActiveLoans.Any())
+    {
+        <p class="empty-state">Nincs kölcsönzés alatt álló könyv.</p>
+    }
+    else
+    {
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>Könyv</th>
+                    <th>Szerző</th>
+                    <th>Kölcsönzés dátuma</th>
+                    <th>Határidő</th>
+                    <th>Állapot</th>
+                    <th>Visszavétel</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var lv in Model.ActiveLoans)
+                {
+                    <tr class="@(lv.Loan.IsOverdue ? "row-overdue" : "")">
+                        <td><strong>@lv.Book?.Title</strong></td>
+                        <td>@lv.Book?.Author</td>
+                        <td>@lv.Loan.LoanDate.ToString("yyyy.MM.dd")</td>
+                        <td>@lv.Loan.DueDate.ToString("yyyy.MM.dd")</td>
+                        <td>
+                            @if (lv.Loan.IsOverdue)
+                            {
+                                <span class="badge badge-danger"> Késésben (@lv.Loan.OverdueDays nap)</span>
+                            }
+                            else
+                            {
+                                var remaining = (lv.Loan.DueDate - DateTime.Today).Days;
+                                <span class="badge @(remaining <= 7 ? "badge-warning" : "badge-info")">
+                                    @remaining nap van hátra
+                                </span>
+                            }
+                        </td>
+                        <td>
+                            <form asp-controller="Loans" asp-action="Return" method="post"
+                                  onsubmit="return confirm('Visszaveszi a könyvet?')">
+                                <input type="hidden" name="id" value="@lv.Loan.Id" />
+                                <button type="submit" class="btn btn-sm btn-primary">Visszavétel</button>
+                            </form>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
+</div>
+
+<div class="section-card">
+    <h2>Visszahozott könyvek (@Model.ReturnedLoans.Count)</h2>
+    @if (!Model.ReturnedLoans.Any())
+    {
+        <p class="empty-state">Nincs visszahozott könyv.</p>
+    }
+    else
+    {
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>Könyv</th>
+                    <th>Szerző</th>
+                    <th>Kölcsönzés</th>
+                    <th>Határidő</th>
+                    <th>Visszahozva</th>
+                    <th>Büntetés</th>
+                    <th>Állapot</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var lv in Model.ReturnedLoans.OrderByDescending(x => x.Loan.ReturnDate))
+                {
+                    var late = lv.Loan.ReturnDate > lv.Loan.DueDate;
+                    <tr>
+                        <td>@lv.Book?.Title</td>
+                        <td>@lv.Book?.Author</td>
+                        <td>@lv.Loan.LoanDate.ToString("yyyy.MM.dd")</td>
+                        <td>@lv.Loan.DueDate.ToString("yyyy.MM.dd")</td>
+                        <td>@lv.Loan.ReturnDate?.ToString("yyyy.MM.dd")</td>
+                        <td class="mono">@(lv.Loan.FineAmount > 0 ? lv.Loan.FineAmount + " Ft" : "–")</td>
+                        <td>
+                            @if (late)
+                            {
+                                var days = (lv.Loan.ReturnDate!.Value - lv.Loan.DueDate).Days;
+                                <span class="badge badge-warning">@days nap késés</span>
+                            }
+                            else
+                            {
+                                <span class="badge badge-success">Időben</span>
+                            }
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
+</div>
+

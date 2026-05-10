@@ -1,0 +1,53 @@
+@model MemberSearchViewModel
+
+@if (!Model.Results.Any())
+{
+    <p class="empty-state">Nem található tag.</p>
+}
+else
+{
+    <table class="data-table">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Név</th>
+                <th>Típus</th>
+                <th>Lakcím</th>
+                <th>Elérhetőség</th>
+                <th>Max</th>
+                <th>Nap</th>
+                <th>Műveletek</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var m in Model.Results)
+            {
+                <tr>
+                    <td class="mono">@m.Id</td>
+                    <td><strong>@m.Name</strong></td>
+                    <td><span class="badge badge-info"><i class="fa-solid fa-id-card"></i> @m.MemberTypeDisplay</span></td>
+                    <td>@m.Address</td>
+                    <td>@m.Contact</td>
+                    <td><i class="fa-solid fa-book"></i> @(m.MaxBooks == int.MaxValue ? "∞" : m.MaxBooks.ToString())</td>
+                    <td><i class="fa-solid fa-calendar-day"></i> @m.LoanDays</td>
+                    <td class="actions">
+                        <div>
+                            <a asp-action="Loans" asp-route-id="@m.Id" class="btn btn-sm btn-outline" title="Kölcsönzések">
+                                <i class="fa-solid fa-hand-holding-hand"></i>
+                            </a>
+                            <a asp-action="Edit" asp-route-id="@m.Id" class="btn btn-sm btn-outline" title="Szerkesztés">
+                                <i class="fa-solid fa-user-pen"></i>
+                            </a>
+                            <form asp-action="Delete" method="post" style="display:inline" onsubmit="return confirm('Biztosan törölni szeretné ezt a tagot?');">
+                                <input type="hidden" name="id" value="@m.Id" />
+                                <button type="submit" class="btn btn-sm btn-danger" title="Törlés">
+                                    <i class="fa-solid fa-user-minus"></i>
+                                </button>
+                            </form>
+                        </div>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}

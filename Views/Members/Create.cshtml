@@ -1,0 +1,58 @@
+@model CreateMemberViewModel
+@{ ViewData["Title"] = "Új tag felvétele"; }
+
+<div class="page-header">
+    <h1>Új tag felvétele</h1>
+    <a asp-action="Index" class="btn btn-outline">← Vissza</a>
+</div>
+
+<div class="section-card form-card">
+    <form asp-action="Create" method="post">
+        <div class="form-grid">
+            <div class="form-group">
+                <label>Név *</label>
+                <input asp-for="Name" class="form-control" required />
+            </div>
+            <div class="form-group">
+                <label>Lakcím *</label>
+                <input asp-for="Address" class="form-control" required />
+            </div>
+            <div class="form-group">
+                <label>Elérhetőség (e-mail / telefon)</label>
+                <input asp-for="Contact" class="form-control" />
+            </div>
+            <div class="form-group">
+                <label>Tag típusa *</label>
+                <select asp-for="MemberType" class="form-control" id="memberTypeSelect">
+                    <option value="Student">Egyetemi hallgató (max 5 könyv, 60 nap)</option>
+                    <option value="Professor">Egyetemi oktató (korlátlan, 365 nap)</option>
+                    <option value="ExternalUniversity">Más egyetem polgára/oktatója (max 4 könyv, 30 nap)</option>
+                    <option value="Other">Egyéb (max 2 könyv, 14 nap)</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="member-type-info" id="typeInfo">
+            <div data-type="Student"> Hallgató: egyszerre maximum <strong>5</strong> könyvet kölcsönözhet, <strong>2 hónapig</strong>.</div>
+            <div data-type="Professor"> Oktató: <strong>korlátlan</strong> könyvet kölcsönözhet, <strong>1 évig</strong>.</div>
+            <div data-type="ExternalUniversity"> Külső: egyszerre maximum <strong>4</strong> könyvet kölcsönözhet, <strong>1 hónapig</strong>.</div>
+            <div data-type="Other">Egyéb: egyszerre maximum <strong>2</strong> könyvet kölcsönözhet, <strong>2 hétig</strong>.</div>
+        </div>
+
+        <div class="form-actions">
+            <button type="submit" class="btn btn-primary">Tag felvétele</button>
+            <a asp-action="Index" class="btn btn-outline">Mégse</a>
+        </div>
+    </form>
+</div>
+
+<script>
+const sel = document.getElementById('memberTypeSelect');
+const infos = document.querySelectorAll('#typeInfo [data-type]');
+function updateInfo() {
+    infos.forEach(el => el.style.display = el.dataset.type === sel.value ? 'block' : 'none');
+}
+sel.addEventListener('change', updateInfo);
+updateInfo();
+</script>
+
