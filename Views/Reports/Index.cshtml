@@ -1,0 +1,114 @@
+@{ ViewData["Title"] = "Jelentések"; }
+
+<div class="page-header">
+    <h1><i class="fa-solid fa-chart-pie"></i> Jelentések és Statisztikák</h1>
+</div>
+
+<div class="dashboard-grid">
+    <div class="section-card">
+        <div class="section-header">
+            <h2><i class="fa-solid fa-medal"></i> Legaktívabb tagok</h2>
+        </div>
+        @if (!((IEnumerable<dynamic>)ViewBag.TopMembers).Any())
+        {
+            <p class="empty-state">Nincsenek adatok.</p>
+        }
+        else
+        {
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Név</th>
+                        <th><i class="fa-solid fa-hand-holding-hand" title="Kölcsönzések"></i></th>
+                        <th>Büntetés</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in ViewBag.TopMembers)
+                    {
+                        <tr>
+                            <td><strong>@item.Member.Name</strong></td>
+                            <td>@item.LoanCount db</td>
+                            <td>
+                                @if (item.TotalFines > 0)
+                                {
+                                    <span class="badge badge-danger">@item.TotalFines Ft</span>
+                                }
+                                else
+                                {
+                                    <span class="text-muted">–</span>
+                                }
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        }
+    </div>
+
+    <div class="section-card">
+        <div class="section-header">
+            <h2><i class="fa-solid fa-star"></i> Népszerű könyvek</h2>
+        </div>
+        @if (!((IEnumerable<dynamic>)ViewBag.TopBooks).Any())
+        {
+            <p class="empty-state">Nincsenek adatok.</p>
+        }
+        else
+        {
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Cím</th>
+                        <th>Szerző</th>
+                        <th><i class="fa-solid fa-bookmark"></i></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in ViewBag.TopBooks)
+                    {
+                        <tr>
+                            <td><strong>@item.Book.Title</strong></td>
+                            <td>@item.Book.Author</td>
+                            <td>@item.LoanCount db</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        }
+    </div>
+</div>
+
+<div class="section-card" style="margin-top: 2rem;">
+    <div class="section-header">
+        <h2><i class="fa-solid fa-triangle-exclamation"></i> Aktív késések</h2>
+    </div>
+    @if (!((IEnumerable<dynamic>)ViewBag.OverdueLoans).Any())
+    {
+        <p class="empty-state">Jelenleg nincs késésben lévő könyv.</p>
+    }
+    else
+    {
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>Könyv</th>
+                    <th>Tag</th>
+                    <th><i class="fa-solid fa-calendar-xmark"></i></th>
+                    <th>Késés</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var loan in ViewBag.OverdueLoans)
+                {
+                    <tr>
+                        <td><strong>@loan.Book?.Title</strong></td>
+                        <td>@loan.Member?.Name</td>
+                        <td>@loan.DueDate.ToString("yyyy.MM.dd")</td>
+                        <td><span class="badge badge-danger"><i class="fa-solid fa-clock"></i> @loan.OverdueDays nap</span></td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
+</div>
