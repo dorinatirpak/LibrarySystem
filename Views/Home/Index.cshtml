@@ -1,0 +1,126 @@
+@model DashboardViewModel
+@{ ViewData["Title"] = "Főoldal"; }
+
+<div class="page-header">
+    <h1>Irányítópult</h1>
+    <p class="page-subtitle">Üdvözöljük a könyvtári adminisztrációs rendszerben!</p>
+</div>
+
+<div class="stats-grid">
+    <div class="stat-card">
+        <div class="stat-icon"><i class="fa-solid fa-book"></i></div>
+        <div class="stat-value">@Model.TotalBooks</div>
+        <div class="stat-label">Könyvek</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon"><i class="fa-solid fa-users"></i></div>
+        <div class="stat-value">@Model.TotalMembers</div>
+        <div class="stat-label">Tagok</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon"><i class="fa-solid fa-hand-holding-hand"></i></div>
+        <div class="stat-value">@Model.ActiveLoans</div>
+        <div class="stat-label">Aktív kölcsönzés</div>
+    </div>
+    <div class="stat-card @(Model.OverdueLoans > 0 ? "stat-card--warning" : "")">
+        <div class="stat-icon"><i class="fa-solid fa-clock"></i></div>
+        <div class="stat-value">@Model.OverdueLoans</div>
+        <div class="stat-label">Késésben</div>
+    </div>
+</div>
+
+<div class="dashboard-grid">
+    <div class="section-card">
+        <div class="section-header">
+            <h2><i class="fa-solid fa-fire"></i> Népszerű könyvek</h2>
+        </div>
+        @if (!Model.TopBooks.Any())
+        {
+            <p class="empty-state">Még nincsenek adatok.</p>
+        }
+        else
+        {
+            <ul class="top-list">
+                @foreach (var book in Model.TopBooks)
+                {
+                    <li>
+                        <span class="top-list-title">@book.Title</span>
+                        <span class="top-list-count"><i class="fa-solid fa-bookmark"></i> @book.Loans.Count</span>
+                    </li>
+                }
+            </ul>
+        }
+    </div>
+
+    <div class="section-card">
+        <div class="section-header">
+            <h2><i class="fa-solid fa-clock-rotate-left"></i> Legutóbbi kölcsönzések</h2>
+            <a asp-controller="Loans" asp-action="All" class="btn btn-sm btn-outline">Összes</a>
+        </div>
+        @if (!Model.RecentLoans.Any())
+        {
+            <p class="empty-state">Még nincsenek kölcsönzések.</p>
+        }
+        else
+        {
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Könyv</th>
+                        <th>Tag</th>
+                        <th>Állapot</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var lv in Model.RecentLoans)
+                    {
+                        <tr>
+                            <td><strong>@lv.Book?.Title</strong></td>
+                            <td>@lv.Member?.Name</td>
+                            <td>
+                                @if (lv.Loan.IsReturned)
+                                {
+                                    <span class="badge badge-success"><i class="fa-solid fa-check"></i> Visszahozva</span>
+                                }
+                                else if (lv.Loan.IsOverdue)
+                                {
+                                    <span class="badge badge-danger"><i class="fa-solid fa-triangle-exclamation"></i> Késésben</span>
+                                }
+                                else
+                                {
+                                    <span class="badge badge-info"><i class="fa-solid fa-hourglass-half"></i> Aktív</span>
+                                }
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        }
+    </div>
+</div>
+
+<div class="quick-actions">
+    <h2><i class="fa-solid fa-bolt"></i> Gyors műveletek</h2>
+    <div class="quick-actions-grid">
+        <a asp-controller="Books" asp-action="Index" class="quick-action-card">
+            <i class="fa-solid fa-magnifying-glass"></i>
+            <span>Könyvek keresése</span>
+        </a>
+        <a asp-controller="Members" asp-action="Index" class="quick-action-card">
+            <i class="fa-solid fa-users-viewfinder"></i>
+            <span>Tagok listája</span>
+        </a>
+        <a asp-controller="Books" asp-action="Create" class="quick-action-card">
+            <i class="fa-solid fa-plus"></i>
+            <span>Új könyv felvétele</span>
+        </a>
+        <a asp-controller="Members" asp-action="Create" class="quick-action-card">
+            <i class="fa-solid fa-user-plus"></i>
+            <span>Új tag felvétele</span>
+        </a>
+        <a asp-controller="Loans" asp-action="Create" class="quick-action-card">
+            <i class="fa-solid fa-file-signature"></i>
+            <span>Kölcsönzés rögzítése</span>
+        </a>
+    </div>
+</div>
