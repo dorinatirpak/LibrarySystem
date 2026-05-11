@@ -52,6 +52,9 @@
                 <div><span class="preview-label">Kölcsönzési időtartam:</span> <span id="previewDays">–</span></div>
                 <div><span class="preview-label">Lejárati határidő:</span> <strong id="previewDue">–</strong></div>
                 <div><span class="preview-label">Kiválasztott könyvek száma:</span> <span id="previewCount">0</span></div>
+                <div id="capacityContainer" style="grid-column: span 2; margin-top: 1rem; padding-top: 1rem; border-top: 1px solid var(--border);">
+                    <span class="preview-label">Még kikölcsönözhető:</span> <strong id="previewRemaining" style="color:var(--accent)">–</strong>
+                </div>
             </div>
         </div>
 
@@ -160,6 +163,16 @@
                 alert('Ez a könyv már szerepel a listában!');
                 return;
             }
+
+            if (selectedMemberData) {
+                const max = parseInt(selectedMemberData.maxBooks);
+                const active = parseInt(selectedMemberData.activeLoanCount);
+                if (max !== 2147483647 && (selectedBooks.length + active) >= max) {
+                    alert(`A tag elérte a maximális kölcsönzési limitet (${max} könyv). Jelenleg kint van: ${active} db.`);
+                    return;
+                }
+            }
+
             selectedBooks.push(book);
             renderSelectedBooks();
             updatePreview();
@@ -211,9 +224,20 @@
                 const dueDate = new Date(loanDate);
                 dueDate.setDate(dueDate.getDate() + days);
 
+                const max = parseInt(selectedMemberData.maxBooks);
+                const active = parseInt(selectedMemberData.activeLoanCount);
+                const remaining = max === 2147483647 ? "Korlátlan" : (max - active - selectedBooks.length);
+
                 document.getElementById('previewType').textContent = selectedMemberData.memberTypeDisplay;
                 document.getElementById('previewDays').textContent = days + ' nap';
                 document.getElementById('previewDue').textContent = dueDate.toLocaleDateString('hu-HU');
+                document.getElementById('previewRemaining').textContent = remaining;
+                
+                if (max !== 2147483647 && remaining <= 0) {
+                    document.getElementById('previewRemaining').style.color = 'var(--danger)';
+                } else {
+                    document.getElementById('previewRemaining').style.color = 'var(--accent)';
+                }
             }
             
             document.getElementById('previewCount').textContent = selectedBooks.length;
