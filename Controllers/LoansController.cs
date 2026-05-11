@@ -124,7 +124,8 @@ public class LoansController(DataService data) : Controller
                 m.Contact,
                 m.Address,
                 m.LoanDays,
-                MaxBooks = m.MaxBooks == int.MaxValue ? "Korlátlan" : m.MaxBooks.ToString()
+                MaxBooks = m.MaxBooks,
+                ActiveLoanCount = data.GetMemberLoans(m.Id, returned: false).Count
             });
         return Json(members);
     }
