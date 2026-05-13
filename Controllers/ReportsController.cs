@@ -13,7 +13,6 @@ public class ReportsController(DataService data) : Controller
         var allMembers = data.GetMembers();
         var allBooks = data.GetBooks(includeDeleted: true);
 
-        // Top 10 members by total loans (only those with at least one loan)
         var topMembers = allMembers
             .Select(m => new
             {
@@ -26,7 +25,6 @@ public class ReportsController(DataService data) : Controller
             .Take(10)
             .ToList();
 
-        // Top 10 most borrowed books (only those with at least one loan)
         var topBooks = allBooks
             .Select(b => new
             {
@@ -38,7 +36,6 @@ public class ReportsController(DataService data) : Controller
             .Take(10)
             .ToList();
 
-        // Overdue loans
         var overdueLoans = allLoans.Where(l => l.IsOverdue).OrderByDescending(l => l.OverdueDays).ToList();
 
         ViewBag.TopMembers = topMembers;
