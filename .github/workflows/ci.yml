@@ -1,14 +1,13 @@
-name: .NET CI
+name: LibrarySystem CI
 
 on:
   push:
-    branches: [ "main", "master" ]
+    branches: [ "main", "master", "uj-verzio" ]
   pull_request:
-    branches: [ "main", "master" ]
+    branches: [ "main", "master", "uj-verzio" ]
 
 jobs:
   build:
-
     runs-on: ubuntu-latest
 
     steps:
