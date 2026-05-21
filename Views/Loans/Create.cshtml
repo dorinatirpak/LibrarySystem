@@ -251,18 +251,16 @@
             const initialMemberId = "@(Model.MemberId > 0 ? Model.MemberId : "")";
 
             if (initialBookId) {
-                fetch(`/Loans/SearchBooks?term=${initialBookId}`)
+                fetch(`/Loans/GetBookDetails?id=${initialBookId}`)
                     .then(r => r.json())
-                    .then(data => {
-                        const book = data.find(b => b.id == initialBookId);
+                    .then(book => {
                         if (book) addBook(book);
                     });
             }
             if (initialMemberId) {
-                fetch(`/Loans/SearchMembers?term=${initialMemberId}`)
+                fetch(`/Loans/GetMemberDetails?id=${initialMemberId}`)
                     .then(r => r.json())
-                    .then(data => {
-                        const member = data.find(m => m.id == initialMemberId);
+                    .then(member => {
                         if (member) {
                             memberSearch.value = member.name;
                             memberId.value = member.id;
