@@ -1,3 +1,4 @@
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace LibrarySystem.Models;
@@ -13,9 +14,20 @@ public enum MemberType
 public abstract class LibraryMember
 {
     public int Id { get; set; }
+    
+    [Required(ErrorMessage = "A név megadása kötelező!")]
+    [StringLength(100, MinimumLength = 3, ErrorMessage = "A névnek legalább 3 és legfeljebb 100 karakternek kell lennie!")]
+    [RegularExpression(@"^[a-zA-ZáéíóöőúüűÁÉÍÓÖŐÚÜŰ\s\.]+$", ErrorMessage = "A név csak betűket, szóközt és pontot tartalmazhat!")]
     public string Name { get; set; } = "";
+
+    [Required(ErrorMessage = "A lakcím megadása kötelező!")]
+    [StringLength(200, MinimumLength = 10, ErrorMessage = "A lakcímnek legalább 10 karakternek kell lennie!")]
     public string Address { get; set; } = "";
+
+    [Required(ErrorMessage = "Az elérhetőség megadása kötelező!")]
+    [EmailAddress(ErrorMessage = "Érvénytelen e-mail formátum!")]
     public string Contact { get; set; } = "";
+
     public bool IsDeleted { get; set; } = false;
 
     public MemberType MemberType { get; set; }
