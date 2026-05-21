@@ -149,7 +149,7 @@ public class DataService(LibraryDbContext db)
             {
                 "Address" => m.Address.Contains(text, StringComparison.OrdinalIgnoreCase),
                 "Contact" => m.Contact.Contains(text, StringComparison.OrdinalIgnoreCase),
-                "Id"      => m.Id.ToString() == text,
+                "Id"      => m.Id.ToString().Contains(text),
                 _         => m.Name.Contains(text, StringComparison.OrdinalIgnoreCase)
             })];
     }
