@@ -10,25 +10,29 @@
     <form asp-action="Create" method="post">
         <div class="form-grid">
             <div class="form-group">
-                <label>Név *</label>
-                <input asp-for="Name" class="form-control" required />
+                <label asp-for="Name">Név *</label>
+                <input asp-for="Name" class="form-control" />
+                <span asp-validation-for="Name" class="field-validation-error"></span>
             </div>
             <div class="form-group">
-                <label>Lakcím *</label>
-                <input asp-for="Address" class="form-control" required />
+                <label asp-for="Address">Lakcím *</label>
+                <input asp-for="Address" class="form-control" />
+                <span asp-validation-for="Address" class="field-validation-error"></span>
             </div>
             <div class="form-group">
-                <label>Elérhetőség (e-mail / telefon)</label>
-                <input asp-for="Contact" class="form-control" />
+                <label asp-for="Contact">E-mail cím *</label>
+                <input asp-for="Contact" class="form-control" placeholder="pelda@email.hu" />
+                <span asp-validation-for="Contact" class="field-validation-error"></span>
             </div>
             <div class="form-group">
-                <label>Tag típusa *</label>
+                <label asp-for="MemberType">Tag típusa *</label>
                 <select asp-for="MemberType" class="form-control" id="memberTypeSelect">
                     <option value="Student">Egyetemi hallgató (max 5 könyv, 60 nap)</option>
                     <option value="Professor">Egyetemi oktató (korlátlan, 365 nap)</option>
                     <option value="ExternalUniversity">Más egyetem polgára/oktatója (max 4 könyv, 30 nap)</option>
                     <option value="Other">Egyéb (max 2 könyv, 14 nap)</option>
                 </select>
+                <span asp-validation-for="MemberType" class="field-validation-error"></span>
             </div>
         </div>
 
