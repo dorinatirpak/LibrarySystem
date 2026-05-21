@@ -38,6 +38,8 @@ public class MembersController(DataService data) : Controller
     [HttpPost]
     public IActionResult Create(CreateMemberViewModel vm)
     {
+        if (!ModelState.IsValid) return View(vm);
+
         LibraryMember member = vm.MemberType switch
         {
             MemberType.Student => new StudentMember(),
@@ -58,18 +60,31 @@ public class MembersController(DataService data) : Controller
     {
         var member = data.GetMember(id);
         if (member == null) return NotFound();
-        return View(member);
+        
+        var vm = new EditMemberViewModel
+        {
+            Id = member.Id,
+            Name = member.Name,
+            Address = member.Address,
+            Contact = member.Contact,
+            MemberTypeDisplay = member.MemberTypeDisplay
+        };
+        return View(vm);
     }
 
     [HttpPost]
-    public IActionResult Edit(int id, string name, string address, string contact)
+    public IActionResult Edit(EditMemberViewModel vm)
     {
-        var member = data.GetMember(id);
-        if (member == null) return NotFound();
-        member.Name = name;
-        member.Address = address;
-        member.Contact = contact;
-        data.UpdateMember(member);
+        if (!ModelState.IsValid) return View(vm);
+        
+        var existing = data.GetMember(vm.Id);
+        if (existing == null) return NotFound();
+        
+        existing.Name = vm.Name;
+        existing.Address = vm.Address;
+        existing.Contact = vm.Contact;
+        
+        data.UpdateMember(existing);
         TempData["Success"] = "Tag sikeresen módosítva!";
         return RedirectToAction(nameof(Index));
     }
