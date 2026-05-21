@@ -13,7 +13,7 @@ else
                 <th>Név</th>
                 <th>Típus</th>
                 <th>Lakcím</th>
-                <th>Elérhetőség</th>
+                <th>E-mail</th>
                 <th>Max</th>
                 <th>Nap</th>
                 <th>Műveletek</th>
@@ -32,6 +32,9 @@ else
                     <td><i class="fa-solid fa-calendar-day"></i> @m.LoanDays</td>
                     <td class="actions">
                         <div>
+                            <a asp-controller="Loans" asp-action="Create" asp-route-memberId="@m.Id" class="btn btn-sm btn-primary" title="Új kölcsönzés">
+                                <i class="fa-solid fa-plus"></i>
+                            </a>
                             <a asp-action="Loans" asp-route-id="@m.Id" class="btn btn-sm btn-outline" title="Kölcsönzések">
                                 <i class="fa-solid fa-hand-holding-hand"></i>
                             </a>
