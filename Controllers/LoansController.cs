@@ -10,6 +10,20 @@ public class LoansController(DataService data) : Controller
 {
     public IActionResult Create(int? bookId, int? memberId)
     {
+        if (memberId.HasValue && memberId.Value > 0)
+        {
+            var member = data.GetMember(memberId.Value);
+            if (member != null)
+            {
+                int currentLoans = data.GetMemberLoans(member.Id, returned: false).Count;
+                if (member.MaxBooks != int.MaxValue && currentLoans >= member.MaxBooks)
+                {
+                    TempData["Error"] = $"A tag ({member.Name}) már elérte a maximális kölcsönzési limitet ({member.MaxBooks} könyv).";
+                    return RedirectToAction("Loans", "Members", new { id = member.Id });
+                }
+            }
+        }
+
         var vm = new CreateLoanViewModel
         {
             BookIds = bookId.HasValue ? [bookId.Value] : [],
@@ -22,6 +36,8 @@ public class LoansController(DataService data) : Controller
     [HttpPost]
     public IActionResult Create(CreateLoanViewModel vm)
     {
+        if (!ModelState.IsValid) return View(vm);
+
         if (vm.BookIds == null || vm.BookIds.Count == 0)
         {
             vm.ErrorMessage = "Legalább egy könyvet ki kell választani!";
@@ -82,6 +98,42 @@ public class LoansController(DataService data) : Controller
             })];
 
         return View(loans);
+    }
+
+    [HttpGet]
+    public IActionResult GetMemberDetails(int id)
+    {
+        var member = data.GetMember(id);
+        if (member == null) return NotFound();
+
+        return Json(new
+        {
+            member.Id,
+            member.Name,
+            member.MemberTypeDisplay,
+            member.Contact,
+            member.Address,
+            member.LoanDays,
+            MaxBooks = member.MaxBooks,
+            ActiveLoanCount = data.GetMemberLoans(member.Id, returned: false).Count
+        });
+    }
+
+    [HttpGet]
+    public IActionResult GetBookDetails(int id)
+    {
+        var book = data.GetBook(id);
+        if (book == null) return NotFound();
+
+        return Json(new
+        {
+            book.Id,
+            book.Title,
+            book.Author,
+            book.ISBN,
+            book.Year,
+            Available = data.GetAvailableCopies(book.Id)
+        });
     }
 
     [HttpGet]
