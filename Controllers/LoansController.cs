@@ -86,6 +86,40 @@ public class LoansController(DataService data) : Controller
         return RedirectToAction("Loans", "Members", new { id = memberId });
     }
 
+    [HttpPost]
+    public IActionResult ReturnAllForMember(int memberId)
+    {
+        var (count, totalFine) = data.ReturnAllForMember(memberId);
+        if (count > 0)
+        {
+            string msg = $"{count} db könyv sikeresen visszavéve.";
+            if (totalFine > 0) msg += $" Összesített büntetés: {totalFine} Ft.";
+            TempData["Success"] = msg;
+        }
+        else
+        {
+            TempData["Info"] = "Nincsenek aktív kölcsönzések ennél a tagnál.";
+        }
+        return RedirectToAction("Loans", "Members", new { id = memberId });
+    }
+
+    [HttpPost]
+    public IActionResult ReturnAllForBook(int bookId)
+    {
+        var (count, totalFine) = data.ReturnAllForBook(bookId);
+        if (count > 0)
+        {
+            string msg = $"{count} db példány sikeresen visszavéve.";
+            if (totalFine > 0) msg += $" Összesített büntetés: {totalFine} Ft.";
+            TempData["Success"] = msg;
+        }
+        else
+        {
+            TempData["Info"] = "Nincsenek kint lévő példányok ebből a könyvből.";
+        }
+        return RedirectToAction("Index", "Books");
+    }
+
     public IActionResult All()
     {
         List<LoanViewModel> loans = [.. data.GetLoans()
