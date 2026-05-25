@@ -7,6 +7,15 @@
         <p class="page-subtitle">@Model.Member.MemberTypeDisplay · @Model.Member.Contact</p>
     </div>
     <div class="header-actions">
+        @if (Model.ActiveLoans.Any())
+        {
+            <form asp-controller="Loans" asp-action="ReturnAllForMember" method="post" style="display:inline" onsubmit="return confirm('Biztosan vissza szeretné venni a tag összes aktív kölcsönzését?');">
+                <input type="hidden" name="memberId" value="@Model.Member.Id" />
+                <button type="submit" class="btn btn-primary">
+                    <i class="fa-solid fa-rotate-left"></i> Összes visszavétele
+                </button>
+            </form>
+        }
         <a asp-controller="Loans" asp-action="Create" asp-route-memberId="@Model.Member.Id"
            class="btn btn-primary">+ Kölcsönzés</a>
         <a asp-action="Index" class="btn btn-outline">← Vissza</a>

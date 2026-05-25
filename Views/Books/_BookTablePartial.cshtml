@@ -48,6 +48,15 @@ else
                     </td>
                     <td class="actions">
                         <div>
+                            @if (avail < book.CopyCount)
+                            {
+                                <form asp-controller="Loans" asp-action="ReturnAllForBook" method="post" style="display:inline" onsubmit="return confirm('Biztosan vissza szeretné venni az összes kint lévő példányt ebből a könyvből?');">
+                                    <input type="hidden" name="bookId" value="@book.Id" />
+                                    <button type="submit" class="btn btn-sm btn-primary" title="Összes visszavétele">
+                                        <i class="fa-solid fa-arrow-rotate-left"></i>
+                                    </button>
+                                </form>
+                            }
                             <a asp-action="Details" asp-route-id="@book.Id" class="btn btn-sm btn-outline" title="Részletek">
                                 <i class="fa-solid fa-eye"></i>
                             </a>

@@ -34,4 +34,21 @@
 ### 4. CI/CD és Projektstruktúra javítása
 - **GitHub Actions:** Létrehoztam a `.github/workflows/ci.yml` fájlt az automatikus teszteléshez.
 
+## 2026. május 25. – Harmadik frissítés: Csoportos műveletek és Típusbiztonság
+
+### 1. Csoportos Visszavétel (Bulk Return)
+**Módosítás:** Implementáltam a tömeges könyv-visszavételt, hogy megkönnyítsem a könyvtáros munkáját.
+- **Könyv alapú:** A könyvlistából az összes kint lévő példány egyszerre visszavehető.
+- **Tag alapú:** A tag adatlapjáról az összes nála lévő könyv egy gombbal visszavételezhető.
+- **Közvetlen visszavétel:** Az "Összes kölcsönzés" listában minden sor végére került egy azonnali visszavétel gomb.
+
+### 2. Hiba javítása: Decimal/Int típuseltérés (CS0266)
+**Probléma:** A csoportos visszavételkor a büntetés összegzésénél fordítási hiba lépett fel, mert a `FineAmount` decimal típusát int-be próbálta tölteni a rendszer.
+**Megoldás:** Átírtam az összesítő metódusokat a `DataService`-ben, hogy konzisztensen a decimal típust használják.
+
+### 3. UI Konzisztencia
+- Az "Összes visszavétele" gomb színét a téma arany színéhez igazítottam.
+- Frissítettem a CSS-t a jobb olvashatóság érdekében a hover állapotoknál.
+
+
 ---
