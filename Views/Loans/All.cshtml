@@ -56,13 +56,24 @@
                             {
                                 <span class="badge badge-success">Visszahozva</span>
                             }
-                            else if (lv.Loan.IsOverdue)
-                            {
-                                <span class="badge badge-danger">Késés: @lv.Loan.OverdueDays nap</span>
-                            }
                             else
                             {
-                                <span class="badge badge-info">Kölcsönözve</span>
+                                <div style="display:flex; align-items:center; gap:0.5rem;">
+                                    @if (lv.Loan.IsOverdue)
+                                    {
+                                        <span class="badge badge-danger" title="Késés: @lv.Loan.OverdueDays nap">Késésben</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge badge-info">Kölcsönözve</span>
+                                    }
+                                    <form asp-action="Return" method="post" style="display:inline">
+                                        <input type="hidden" name="id" value="@lv.Loan.Id" />
+                                        <button type="submit" class="btn btn-sm btn-primary" title="Visszavétel">
+                                            <i class="fa-solid fa-arrow-rotate-left"></i>
+                                        </button>
+                                    </form>
+                                </div>
                             }
                         </td>
                     </tr>
