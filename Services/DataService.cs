@@ -224,6 +224,30 @@ public class DataService(LibraryDbContext db)
                    (returned == true  ? l.ReturnDate != null : l.ReturnDate == null)))
               .OrderByDescending(l => l.LoanDate)];
 
+    public (int count, decimal totalFine) ReturnAllForMember(int memberId)
+    {
+        var activeLoans = db.Loans.Where(l => l.MemberId == memberId && l.ReturnDate == null).ToList();
+        decimal fine = 0;
+        foreach (var loan in activeLoans)
+        {
+            var (_, _, _, _) = ReturnBook(loan.Id);
+            fine += loan.FineAmount;
+        }
+        return (activeLoans.Count, fine);
+    }
+
+    public (int count, decimal totalFine) ReturnAllForBook(int bookId)
+    {
+        var activeLoans = db.Loans.Where(l => l.BookId == bookId && l.ReturnDate == null).ToList();
+        decimal fine = 0;
+        foreach (var loan in activeLoans)
+        {
+            var (_, _, _, _) = ReturnBook(loan.Id);
+            fine += loan.FineAmount;
+        }
+        return (activeLoans.Count, fine);
+    }
+
     // ── Dashboard ──
 
     public DashboardViewModel GetDashboard()
